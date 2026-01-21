@@ -1,4 +1,5 @@
 <?php
+ob_start();
 require 'vendor/autoload.php';
 
 use League\Csv\Reader;
@@ -189,11 +190,25 @@ function generateExcel($collaborators) {
 
     $writer = new Xlsx($spreadsheet);
 
+    // Create temporary file to get content length
+    $tempFile = tempnam(sys_get_temp_dir(), 'xlsx');
+    $writer->save($tempFile);
+    $content = file_get_contents($tempFile);
+    $size = filesize($tempFile);
+    unlink($tempFile);
+
+    if (ob_get_length()) ob_end_clean();
+
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     header('Content-Disposition: attachment;filename="cartao_ponto.xlsx"');
     header('Cache-Control: max-age=0');
+    header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+    header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+    header('Cache-Control: cache, must-revalidate');
+    header('Pragma: public');
+    header('Content-Length: ' . $size);
 
-    $writer->save('php://output');
+    echo $content;
 }
 ?>
 <!DOCTYPE html>
