@@ -33,7 +33,7 @@
                     </div>
                 <?php endif; ?>
 
-                <form action="/" method="post" enctype="multipart/form-data" class="space-y-6">
+                <form action="" method="post" enctype="multipart/form-data" class="space-y-6">
                     <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrfToken); ?>">
                     <div>
                         <label for="file" class="block text-sm font-semibold text-slate-300 mb-2">Seleccione el archivo de marcaciones</label>
