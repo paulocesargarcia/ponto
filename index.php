@@ -16,9 +16,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
     $file = $_FILES['file'];
 
     if ($file['error'] !== UPLOAD_ERR_OK) {
-        $error = 'Erro no upload do arquivo.';
+        $error = 'Error al subir el archivo.';
     } elseif ($file['size'] > 5 * 1024 * 1024) {
-        $error = 'O arquivo deve ter no máximo 5MB.';
+        $error = 'El archivo debe pesar como máximo 5MB.';
     } else {
         $filePath = $file['tmp_name'];
 
@@ -34,9 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
             // Mapping for headers
             $map = [
                 'dept' => ['Departamento', 'Dept.'],
-                'id' => ['ID Colaborador', 'User ID', 'Enroll ID'],
-                'name' => ['Nome', 'Name'],
-                'date' => ['Data', 'Date'],
+                'id' => ['ID Colaborador', 'User ID', 'Enroll ID', 'ID'],
+                'name' => ['Nome', 'Name', 'Nombre'],
+                'date' => ['Data', 'Date', 'Fecha'],
                 'time' => ['Hora', 'Time'],
                 'm1' => ['1'],
                 'm2' => ['2'],
@@ -97,14 +97,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
             }
 
             if (empty($collaborators)) {
-                $error = 'Arquivo vazio ou em formato inválido.';
+                $error = 'Archivo vacío o en formato inválido.';
             } else {
                 generateExcel($collaborators);
                 exit;
             }
 
         } catch (Exception $e) {
-            $error = 'Erro ao processar o arquivo: ' . $e->getMessage();
+            $error = 'Error al procesar el archivo: ' . $e->getMessage();
         }
     }
 }
@@ -132,13 +132,13 @@ function generateExcel($collaborators) {
         $sheet->setTitle($sheetName);
 
         // Header
-        $sheet->setCellValue('A1', 'Nome');
-        $sheet->setCellValue('B1', 'Data');
+        $sheet->setCellValue('A1', 'Nombre');
+        $sheet->setCellValue('B1', 'Fecha');
         $sheet->setCellValue('C1', '1');
         $sheet->setCellValue('D1', '2');
         $sheet->setCellValue('E1', '3');
         $sheet->setCellValue('F1', '4');
-        $sheet->setCellValue('G1', 'Manhã');
+        $sheet->setCellValue('G1', 'Mañana');
         $sheet->setCellValue('H1', 'Tarde');
         $sheet->setCellValue('I1', 'Total');
 
@@ -213,7 +213,7 @@ function generateExcel($collaborators) {
     if (ob_get_length()) ob_end_clean();
 
     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment;filename="cartao_ponto.xlsx"');
+    header('Content-Disposition: attachment;filename="marcaciones.xlsx"');
     header('Cache-Control: max-age=0');
     header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
     header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
@@ -225,70 +225,70 @@ function generateExcel($collaborators) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-br" class="h-full bg-slate-50">
+<html lang="es" class="h-full bg-slate-950">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Conversor de Cartão-Ponto</title>
+    <title>Conversor de Marcaciones</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="h-full flex flex-col items-center justify-center p-6">
+<body class="h-full flex flex-col items-center justify-center p-6 text-slate-100">
     <div class="w-full max-w-md">
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="bg-slate-900 rounded-xl shadow-2xl border border-slate-800 overflow-hidden">
             <div class="p-8">
                 <div class="flex flex-col items-center mb-8">
-                    <div class="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center mb-4">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center mb-4 shadow-lg shadow-indigo-500/20">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
-                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight text-center">Conversor de Cartão-Ponto</h1>
-                    <p class="text-slate-500 mt-2 text-center text-sm">Transforme seus arquivos TXT em planilhas Excel formatadas.</p>
+                    <h1 class="text-2xl font-bold text-white tracking-tight text-center">Conversor de Marcaciones</h1>
+                    <p class="text-slate-400 mt-2 text-center text-sm">Convierta sus archivos TXT en planillas Excel formateadas.</p>
                 </div>
 
                 <?php if ($error): ?>
-                    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                    <div class="mb-6 p-4 bg-red-900/30 border border-red-800 rounded-lg flex items-start gap-3">
                         <svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         </svg>
-                        <p class="text-sm text-red-700 font-medium"><?php echo htmlspecialchars($error); ?></p>
+                        <p class="text-sm text-red-200 font-medium"><?php echo htmlspecialchars($error); ?></p>
                     </div>
                 <?php endif; ?>
 
                 <form action="index.php" method="post" enctype="multipart/form-data" class="space-y-6">
                     <div>
-                        <label for="file" class="block text-sm font-semibold text-slate-700 mb-2">Selecione o arquivo de ponto</label>
+                        <label for="file" class="block text-sm font-semibold text-slate-300 mb-2">Seleccione el archivo de marcaciones</label>
                         <div class="relative group">
                             <input type="file" name="file" id="file" required
-                                class="block w-full text-sm text-slate-500
+                                class="block w-full text-sm text-slate-400
                                 file:mr-4 file:py-2.5 file:px-4
                                 file:rounded-lg file:border-0
                                 file:text-sm file:font-semibold
-                                file:bg-indigo-50 file:text-indigo-700
-                                hover:file:bg-indigo-100
-                                border border-slate-200 rounded-lg p-1.5
-                                group-hover:border-indigo-300 transition-colors
+                                file:bg-indigo-900/50 file:text-indigo-300
+                                hover:file:bg-indigo-900/70
+                                border border-slate-700 bg-slate-800 rounded-lg p-1.5
+                                group-hover:border-indigo-500 transition-colors
                                 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                         </div>
-                        <p class="mt-2 text-xs text-slate-400 italic">Formatos suportados: TXT, TSV (separado por TAB).</p>
+                        <p class="mt-2 text-xs text-slate-500 italic">Formatos compatibles: TXT, TSV (separado por TAB).</p>
                     </div>
 
                     <button type="submit"
-                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 group focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                        <span>Gerar Planilha Excel</span>
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-lg shadow-indigo-500/20 transition-all duration-200 flex items-center justify-center gap-2 group focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-slate-900">
+                        <span>Generar Planilla Excel</span>
                         <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                         </svg>
                     </button>
                 </form>
             </div>
-            <div class="px-8 py-4 bg-slate-50 border-t border-slate-200">
+            <div class="px-8 py-4 bg-slate-900/50 border-t border-slate-800">
                 <p class="text-center text-xs text-slate-500">
-                    &copy; <?php echo date('Y'); ?> Conversor RH. Processamento seguro e local.
+                    &copy; <?php echo date('Y'); ?> Conversor RH. Procesamiento seguro y local.
                 </p>
             </div>
         </div>
