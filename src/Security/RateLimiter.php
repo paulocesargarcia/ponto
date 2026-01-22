@@ -17,6 +17,10 @@ class RateLimiter
 
     public function check(string $ip): bool
     {
+        if (!is_dir($this->storageDir)) {
+            mkdir($this->storageDir, 0775, true);
+        }
+
         $hash = hash('sha256', $ip);
         $file = $this->storageDir . $hash;
 

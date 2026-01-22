@@ -23,9 +23,14 @@ Esta herramienta permite convertir archivos de texto (TXT/TSV) con marcaciones d
    ```bash
    composer install
    ```
-3. Inicie el servidor PHP:
+3. Cree las carpetas necesarias y asigne permisos:
    ```bash
-   php -S localhost:8000
+   mkdir -p var/ratelimit
+   chmod -R 775 var
+   ```
+4. Inicie el servidor PHP apuntando a la carpeta `public`:
+   ```bash
+   php -S localhost:8000 -t public
    ```
 
 ## Cómo usar

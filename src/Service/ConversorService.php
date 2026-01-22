@@ -11,7 +11,7 @@ class ConversorService
 {
     public function convertToSpreadsheet(string $filePath): Spreadsheet
     {
-        $csv = Reader::createFromPath($filePath, 'r');
+        $csv = Reader::fromPath($filePath);
         $csv->setDelimiter("\t");
         $csv->setHeaderOffset(0);
 
