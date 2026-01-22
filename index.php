@@ -6,6 +6,9 @@ use League\Csv\Reader;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 $error = '';
 
@@ -49,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
                 return null;
             };
 
-            $hDept = $findHeader($map['dept']);
             $hId = $findHeader($map['id']);
             $hName = $findHeader($map['name']);
             $hDate = $findHeader($map['date']);
@@ -140,7 +142,10 @@ function generateExcel($collaborators) {
         $sheet->setCellValue('H1', 'Tarde');
         $sheet->setCellValue('I1', 'Total');
 
+        $sheet->getStyle('A1:I1')->getFont()->setBold(true);
+
         $row = 2;
+        $startRow = 2;
         foreach ($data['days'] as $date => $times) {
             sort($times); // Ensure times are in order
 
@@ -182,6 +187,14 @@ function generateExcel($collaborators) {
             $row++;
         }
 
+        $endDataRow = $row - 1;
+
+        // Add Total row
+        $row++; // Empty row
+        $sheet->setCellValue("I$row", "=SUM(I$startRow:I$endDataRow)");
+        $sheet->getStyle("I$row")->getNumberFormat()->setFormatCode('[h]:mm:ss');
+        $sheet->getStyle("I$row")->getFont()->setBold(true);
+
         // Auto size columns
         foreach (range('A', 'I') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
@@ -212,34 +225,73 @@ function generateExcel($collaborators) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-br" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conversor de Cartão-Ponto</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; margin: 40px; }
-        .error { color: red; margin-bottom: 20px; }
-        form { border: 1px solid #ccc; padding: 20px; border-radius: 5px; display: inline-block; }
-        input[type="file"] { margin-bottom: 10px; }
-        button { cursor: pointer; padding: 10px 20px; }
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body>
-    <h1>Conversor de Cartão-Ponto (TXT → Excel)</h1>
+<body class="h-full flex flex-col items-center justify-center p-6">
+    <div class="w-full max-w-md">
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="p-8">
+                <div class="flex flex-col items-center mb-8">
+                    <div class="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold text-slate-900 tracking-tight text-center">Conversor de Cartão-Ponto</h1>
+                    <p class="text-slate-500 mt-2 text-center text-sm">Transforme seus arquivos TXT em planilhas Excel formatadas.</p>
+                </div>
 
-    <?php if ($error): ?>
-        <div class="error"><?php echo htmlspecialchars($error); ?></div>
-    <?php endif; ?>
+                <?php if ($error): ?>
+                    <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                        <svg class="w-5 h-5 text-red-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <p class="text-sm text-red-700 font-medium"><?php echo htmlspecialchars($error); ?></p>
+                    </div>
+                <?php endif; ?>
 
-    <form action="index.php" method="post" enctype="multipart/form-data">
-        <div>
-            <label for="file">Selecione o arquivo de ponto:</label><br><br>
-            <input type="file" name="file" id="file" required>
+                <form action="index.php" method="post" enctype="multipart/form-data" class="space-y-6">
+                    <div>
+                        <label for="file" class="block text-sm font-semibold text-slate-700 mb-2">Selecione o arquivo de ponto</label>
+                        <div class="relative group">
+                            <input type="file" name="file" id="file" required
+                                class="block w-full text-sm text-slate-500
+                                file:mr-4 file:py-2.5 file:px-4
+                                file:rounded-lg file:border-0
+                                file:text-sm file:font-semibold
+                                file:bg-indigo-50 file:text-indigo-700
+                                hover:file:bg-indigo-100
+                                border border-slate-200 rounded-lg p-1.5
+                                group-hover:border-indigo-300 transition-colors
+                                focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        </div>
+                        <p class="mt-2 text-xs text-slate-400 italic">Formatos suportados: TXT, TSV (separado por TAB).</p>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-lg shadow-sm transition-all duration-200 flex items-center justify-center gap-2 group focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                        <span>Gerar Planilha Excel</span>
+                        <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+            <div class="px-8 py-4 bg-slate-50 border-t border-slate-200">
+                <p class="text-center text-xs text-slate-500">
+                    &copy; <?php echo date('Y'); ?> Conversor RH. Processamento seguro e local.
+                </p>
+            </div>
         </div>
-        <div>
-            <button type="submit">Gerar Excel</button>
-        </div>
-    </form>
+    </div>
 </body>
 </html>
